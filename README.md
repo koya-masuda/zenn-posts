@@ -1,22 +1,22 @@
-# zenn
+# zenn-posts
 
 👇  新しい記事を作成する
 
 ```
-$ npx zenn new:article
+bunx zenn new:article
 ```
 
 ```
-$ npx zenn new:article
+bunx zenn new:article
 ```
 
 👇  新しい本を作成する
 ```
-$ npx zenn new:book
+bunx zenn new:book
 ```
 
 
 👇  投稿をプレビューする
 ```
-  $ npx zenn preview
+bunx zenn preview
 ```
