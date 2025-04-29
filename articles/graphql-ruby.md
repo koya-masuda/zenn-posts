@@ -6,7 +6,7 @@ topics:
   - "ruby"
   - "graphql"
   - "oss"
-published: false
+published: true
 ---
 
 # 経緯
