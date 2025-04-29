@@ -1,8 +1,8 @@
 ---
-title: "graphql-rubyの開発環境のrake compileが通らない"
-emoji: "🍣"
+title: "初めてOSSにPRを出した話"
+emoji: "🚀"
 type: "tech"
-topics: []
+topics: ["ruby", "graphql", "oss"]
 published: false
 ---
 
