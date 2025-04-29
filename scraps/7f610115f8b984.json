@@ -1,0 +1,57 @@
+{
+  "title": "WSL2 + Neovim環境を作る",
+  "closed": true,
+  "archived": false,
+  "created_at": "2023-03-29",
+  "comments": [
+    {
+      "author": "koxya",
+      "created_at": "2023-03-29",
+      "body_markdown": "現在時点（2023-03-29）の最新版をインストール\n\n```\nhttps://github.com/neovim/neovim/releases/tag/v0.8.3\ntar xzvf nvim-linux64.tar.gz\n./nvim-linux64/bin/nvim\n```\n\nhttps://github.com/neovim/neovim/releases/tag/v0.8.3\n",
+      "body_updated_at": "2023-03-29"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-03-29",
+      "body_markdown": "シンボリックリンクを貼る\n\n```\nmv ./nvim-linux64 /usr/local\nln -s /usr/local/nvim-linux64/bin/nvim /usr/local/bin/nvim\n```\n\n![](https://storage.googleapis.com/zenn-user-upload/c9427fce902d-20230329.png)\n"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-03-29",
+      "body_markdown": "## パッケージマネージャー選定\n\n>Lua plugins are easy to create just like Vimscript plugins. Your config can live in init.lua!\n\n公式よりLuaがおすすめされているようだったのでLua baseなpackage managerで足切りする。"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-03-29",
+      "body_markdown": "## Lua-based package manager\n\n調べた感じ、これくらい。\n\n|  | 印象 |  スター数🌟 | GitHub |\n| ---- | ---- | ---- | ---- |\n|  packer.nvim | 使っている人多い。安心。  |  6k  | https://github.com/wbthomason/packer.nvim |\n|  lazy.nvim  | マッチョUI | 4k  | https://github.com/folke/lazy.nvim |\n|  mason.nvim | パッケージマネージャーと言うよりプラグイン？ |  4.1k  | https://github.com/williamboman/mason.nvim |\n|  paq-nvim | 絵がないので不安  |  572  | https://github.com/savq/paq-nvim |\n\n参考：https://www.libhunt.com/l/lua/topic/package-manager\n",
+      "body_updated_at": "2023-03-29"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-03-29",
+      "body_markdown": "今っぽい感じがする`lazy.nvim`を選択。直感大事。"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-03-30",
+      "body_markdown": "READMEに沿って`init.lua`にコピペ\n\n```lua:init.lua\nlocal lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\"\nif not vim.loop.fs_stat(lazypath) then\n  vim.fn.system({\n    \"git\",\n    \"clone\",\n    \"--filter=blob:none\",\n    \"https://github.com/folke/lazy.nvim.git\",\n    \"--branch=stable\", -- latest stable release\n    lazypath,\n  })\nend\nvim.opt.rtp:prepend(lazypath)\n\nrequire(\"lazy\").setup(plugins, opts)\n```",
+      "body_updated_at": "2023-03-30"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-03-30",
+      "body_markdown": "`init.lua`では`vim.opt.{option}`が`:set`と同じみたい。あとは`lua/hoge.lua`を`init.lua`でrequireすればファイル分割も可能とのこと。とりあえず行番号を表示してみる。\n\n```lua:base.lua\nvim.opt.number = true\n```\n\n```lua:init.lua\nrequire(\"base\")\n```\n\nできた！！\n![](https://storage.googleapis.com/zenn-user-upload/cc2a2e6211e5-20230330.png)\n\n\nここがめっちゃ参考になる↓\nhttps://github.com/willelz/nvim-lua-guide-ja/blob/master/README.ja.md",
+      "body_updated_at": "2023-03-30"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-04-02",
+      "body_markdown": "カラースキームの導入\n\n[tokyonight](https://github.com/folke/tokyonight.nvim)を選択\n\n```lua:init.lua\n require(\"lazy\").setup({\n  {\n    \"folke/tokyonight.nvim\",\n    config = function()\n      vim.cmd[[colorscheme tokyonight-moon]]\n    end\n  }\n})\n```\n"
+    },
+    {
+      "author": "koxya",
+      "created_at": "2023-04-08",
+      "body_markdown": "導入したプラグインが増えてきた\n\n## 見た目周り\n\n### カラースキーム\n\n - folke/tokyonight.nvim\n\nnightで使ってる\n\nhttps://github.com/folke/tokyonight.nvim\n\n### ファイラー\n\nそもそもファイラーという言葉もvscodeを使っていたときは知らなかった\n\n- nvim-tree/nvim-tree.lua\n\nhttps://github.com/nvim-tree/nvim-tree.lua\n\n### ステータスライン\n\n特にこだわりはない\n\n- nvim-lualine/lualine.nvim\n\nhttps://github.com/nvim-lualine/lualine.nvim\n\n### バッファーライン\n\nakinshoさんはよく見る名前で信頼できそう\n\n分割したバッファについてくるのがうっとおしかったため、windowの下に固定になるように設定している。\n\n```lua\nvim.opt.laststatus = 3\nrequire('lualine').setup({\n  options = {\n    globalstatus = true,\n  }\n})\n```\n\n- akinsho/bufferline.nvim\n\nhttps://github.com/akinsho/bufferline.nvim\n\n## 便利系\n\n- windwp/nvim-autopairs\n\n括弧を自動補完してくれる。必須級。\n\nhttps://github.com/windwp/nvim-autopairs\n\n- pocco81/auto-save.nvim\n\ninsertモードを抜けると自動補完してくれる。saveしていなくてハマることが多かったので助かる。\n\nhttps://github.com/Pocco81/auto-save.nvim\n\n- petertriho/nvim-scrollbar\n\nスクロールバーを出してくれる。これがあるなら、ステータスラインの〇〇%の表示は要らないなあ。\n\nhttps://github.com/petertriho/nvim-scrollbar\n\n- mvllow/modes.nvim\n\ncurrentが位置とモードがわかりやすくなる\n\nhttps://github.com/mvllow/modes.nvim\n\n## Git\n\nすごく悩んだ。特にdiffを横並びで見たかったのと、1ファイルの中で行単位のステージングの機能を重要視した。\n\n- TimUntersberger/neogit\n\n神。後述するdiffviewとの相性もよく、単純なgit操作は完結する。\n\nTimUntersberger/neogit\n\n- sindrets/diffview.nvim\n\n見た目がいい。デカ目の差分が見やすくなった。\n\nhttps://github.com/sindrets/diffview.nvim\n\n## LSP&補完\n\nあまりまだ良くわかっていない。こちらの記事を参考にした。\n\nhttps://zenn.dev/botamotch/articles/21073d78bc68bf\n\n- neovim/nvim-lspconfig\n- williamboman/mason.nvim\n- williamboman/mason-lspconfig.nvim\n- hrsh7th/nvim-cmp\n- hrsh7th/cmp-nvim-lsp\n- hrsh7th/cmp-buffer \n- hrsh7th/cmp-path\n- hrsh7th/cmp-cmdline"
+    }
+  ]
+}
